@@ -146,8 +146,8 @@ pub fn ServiceInstaller(comptime init_system: InitSystem) type {
             defer patch_map.deinit();
 
             try patch_map.put("$DEFAULT_TTY", default_tty_str);
-            try patch_map.put("$CONFIG_DIRECTORY", config_directory);
-            try patch_map.put("$PREFIX_DIRECTORY", prefix_directory);
+            try patch_map.put("$CONFIG_DIRECTORY", "/etc");
+            try patch_map.put("$PREFIX_DIRECTORY", "/usr");
             try patch_map.put("$EXECUTABLE_NAME", executable_name);
 
             switch (init_system) {
@@ -256,8 +256,8 @@ fn install_ly(allocator: std.mem.Allocator, install_config: bool) !void {
             defer patch_map.deinit();
 
             try patch_map.put("$DEFAULT_TTY", default_tty_str);
-            try patch_map.put("$CONFIG_DIRECTORY", config_directory);
-            try patch_map.put("$PREFIX_DIRECTORY", prefix_directory);
+            try patch_map.put("$CONFIG_DIRECTORY", "/etc");
+            try patch_map.put("$PREFIX_DIRECTORY", "/usr");
 
             const patched_config = try patchFile(allocator, "res/config.ini", patch_map);
             try installText(patched_config, config_dir, ly_config_directory, "config.ini", .{});
@@ -267,7 +267,7 @@ fn install_ly(allocator: std.mem.Allocator, install_config: bool) !void {
             var patch_map = PatchMap.init(allocator);
             defer patch_map.deinit();
 
-            try patch_map.put("$CONFIG_DIRECTORY", config_directory);
+            try patch_map.put("$CONFIG_DIRECTORY", "/etc");
 
             const patched_setup = try patchFile(allocator, "res/setup.sh", patch_map);
             try installText(patched_setup, config_dir, ly_config_directory, "setup.sh", .{ .mode = 0o755 });
@@ -297,7 +297,7 @@ fn install_ly(allocator: std.mem.Allocator, install_config: bool) !void {
     }
 
     {
-        const pam_path = try std.fs.path.join(allocator, &[_][]const u8{ dest_directory, config_directory, "/pam.d" });
+        const pam_path = try std.fs.path.join(allocator, &[_][]const u8{ config_directory, "/pam.d" });
         if (!std.mem.eql(u8, dest_directory, "")) {
             std.fs.cwd().makePath(pam_path) catch {
                 std.debug.print("warn: {s} already exists as a directory.\n", .{pam_path});
